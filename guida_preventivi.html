@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guida Preventivi V16 (Dati e AI Fix)</title>
+    <title>Guida Preventivi V17 (Fix Errore AI)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -128,20 +128,20 @@
             const STEPS_CONFIG = ["Servizio", "Cliente", "Pacchetto", "Personalizza"];
 
             // --- FUNZIONE API GEMINI ---
-            const callGeminiAPI = async (prompt, expectJson = false) => {
+            const callGeminiAPI = async (apiPrompt, expectJson = false) => {
                 if (!CONFIG.apiKey) {
-                    const key = prompt("Per favore, inserisci la tua chiave API di Google Gemini per continuare.\n\nPuoi salvarla nel menu 'Configura' per non doverla inserire di nuovo.");
+                    const key = window.prompt("Per favore, inserisci la tua chiave API di Google Gemini per continuare.\n\nPuoi salvarla nel menu 'Configura' per non doverla inserire di nuovo.");
                     if (key) {
                         CONFIG.apiKey = key;
                     } else {
-                        alert("Operazione annullata. È necessaria una chiave API per usare le funzioni AI.");
+                        window.alert("Operazione annullata. È necessaria una chiave API per usare le funzioni AI.");
                         return expectJson ? { error: "Chiave API non fornita." } : "Errore: Chiave API non fornita.";
                     }
                 }
 
                 const apiKey = CONFIG.apiKey;
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                const payload = { contents: [{ parts: [{ text: apiPrompt }] }] };
                 if (expectJson) {
                     payload.generationConfig = { responseMimeType: "application/json" };
                 }
@@ -160,7 +160,7 @@
                              const savedConfig = JSON.parse(localStorage.getItem('photographerConfig') || '{}');
                              delete savedConfig.apiKey;
                              localStorage.setItem('photographerConfig', JSON.stringify(savedConfig));
-                             alert("Errore: La chiave API inserita non è valida. Verrà richiesta di nuovo al prossimo utilizzo.");
+                             window.alert("Errore: La chiave API inserita non è valida. Verrà richiesta di nuovo al prossimo utilizzo.");
                         }
                         const errorBody = await response.text();
                         throw new Error(`Errore API (${response.status}): ${response.statusText}. Dettagli: ${errorBody}`);
@@ -463,7 +463,7 @@
             const handleGenerateVademecum = async () => { renderAiAssistantModal(); const serviceName = DATABASE[state.selectedService].name; const dataSource = state.aiGeneratedService || DATABASE[state.selectedService]; const pkg = dataSource.packages[state.selectedPackage]; const extraItems = state.currentQuote.items.filter(i => i.type === 'extra').map(i => i.name).join(', ') || 'Nessuno'; const prompt = `Sei un fotografo esperto e mentore. Crea un Vademecum tecnico dettagliato per un servizio fotografico. **Tua Attrezzatura:** \n${CONFIG.equipment} **Tipo di Servizio:** ${serviceName} **Pacchetto Scelto:** ${pkg.name} (${pkg.description}) **Servizi Extra Aggiunti:** ${extraItems} **Profilo Cliente:** ${state.selectedClientProfile} Basandoti su questi dati, fornisci consigli specifici e pratici su: 1.  **Attrezzatura Essenziale:** Dalla tua lista, quale attrezzatura è fondamentale per questo specifico lavoro? 2.  **Consigli Sul Campo:** Quale approccio tecnico e relazionale deve adottare il fotografo? 3.  **Workflow di Post-Produzione:** Quali sono i passaggi chiave per elaborare le immagini di questo servizio? Sii specifico e fai riferimento all'attrezzatura quando possibile. Formatta il testo con titoli in grassetto e elenchi puntati.`; const result = await callGeminiAPI(prompt); state.currentVademecum = result; document.getElementById('gemini-content').innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`; document.getElementById('copy-gemini-content-btn').classList.remove('hidden');};
             const handleCalculateAiPrice = async () => {
                 const description = document.getElementById('ai-job-description').value;
-                if (!description || description.length < 20) { alert("Per favore, fornisci una descrizione più dettagliata del lavoro (almeno 20 caratteri)."); return; }
+                if (!description || description.length < 20) { window.alert("Per favore, fornisci una descrizione più dettagliata del lavoro (almeno 20 caratteri)."); return; }
                 const resultContainer = document.getElementById('ai-form-container');
                 resultContainer.innerHTML = '<div class="flex flex-col justify-center items-center p-4 h-64"><span class="loader"></span><p class="mt-4 text-secondary">L\'AI sta generando i pacchetti...</p></div>';
                 const pricingContext = JSON.stringify( Object.keys(DATABASE).reduce((acc, key) => { if (key !== 'su-misura') acc[key] = { packages: DATABASE[key].packages }; return acc; }, {}) );
@@ -507,7 +507,7 @@
                 localStorage.setItem('photographerConfig', JSON.stringify(CONFIG));
                 document.getElementById('config-modal').classList.add('hidden');
                 document.getElementById('user-name-display').textContent = CONFIG.photographerName.split(' ')[0];
-                alert('Configurazione salvata!');
+                window.alert('Configurazione salvata!');
             };
             const loadConfig = () => {
                 const savedConfig = localStorage.getItem('photographerConfig');
@@ -544,7 +544,7 @@
                 if (e.target.closest('#save-config-btn')) { handleSaveConfig(); return; }
                 if (e.target.closest('#copy-gemini-content-btn')) { 
                     const content = document.getElementById('gemini-content').innerText;
-                    navigator.clipboard.writeText(content).then(() => alert('Testo copiato!'));
+                    navigator.clipboard.writeText(content).then(() => window.alert('Testo copiato!'));
                 }
             });
             document.addEventListener('input', (e) => { 
