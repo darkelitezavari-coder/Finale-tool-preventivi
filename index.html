@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guida Preventivi V17 (Fix Errore AI)</title>
+    <title>Guida Preventivi V18 (UI & API Fix)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,12 +36,39 @@
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media print {
-            body { background-color: white !important; color: black !important; }
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            body {
+                background-color: white !important;
+                color: #111827 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
             #app, .no-print { display: none !important; }
-            #quote-modal { display: flex !important; position: absolute; left: 0; top: 0; width: 100%; height: auto; background-color: transparent !important; backdrop-filter: none !important; justify-content: flex-start; align-items: flex-start; }
-            #quote-modal-content, #quote-modal-content * { visibility: visible; }
-            #quote-modal-content { width: 100%; max-width: 100%; height: auto; box-shadow: none; border: none; margin: 0; padding: 0; color: black !important; background-color: white !important; }
-            .print-text-black { color: black !important; }
+            #quote-modal {
+                display: block !important;
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                background-color: white !important;
+            }
+            #quote-modal-content {
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 2.5cm 2cm;
+                color: #111827 !important;
+                background-color: white !important;
+            }
+            .print-text-black { color: #111827 !important; }
+            .print-bg-accent { background-color: #d1ac87 !important; }
+            .print-text-white { color: white !important; }
+            .print-border-accent { border-color: #d1ac87 !important; }
+            .print-bg-gray { background-color: #f3f4f6 !important; }
             [contenteditable="true"] { outline: none !important; border: none !important; }
         }
     </style>
@@ -101,6 +128,8 @@
         let CONFIG = {
             photographerName: "Fabio Ronchi",
             homeAddress: "Via Cascinetta Interna 5, Gattico, Italia",
+            phoneNumber: "3471181949",
+            instagramHandle: "@zavari.ronchi",
             costPerKm: 0.45,
             apiKey: null, // La chiave API di Gemini verrà memorizzata qui
             equipment: `- Fotocamere: Canon 5D Mark IV, Canon 80D
@@ -140,7 +169,7 @@
                 }
 
                 const apiKey = CONFIG.apiKey;
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
                 const payload = { contents: [{ parts: [{ text: apiPrompt }] }] };
                 if (expectJson) {
                     payload.generationConfig = { responseMimeType: "application/json" };
@@ -315,7 +344,6 @@
                 const quoteTitle = state.customizationData.quoteTitle || 'Preventivo Servizio Fotografico';
                 const includedItems = state.currentQuote.items.filter(i => i.type === 'included');
                 const extraItems = state.currentQuote.items.filter(i => i.type === 'extra');
-                const serviceTotal = state.currentQuote.basePrice + extraItems.reduce((acc, item) => acc + item.price, 0);
                 
                 container.innerHTML = `
                 <div id="quote-modal-content" class="bg-secondary w-full max-w-4xl rounded-lg shadow-xl p-6 sm:p-8">
@@ -323,35 +351,80 @@
                         <div><h2 class="text-2xl sm:text-3xl font-display">Anteprima Preventivo</h2><p class="text-secondary">Controlla e modifica i dettagli prima di finalizzare.</p></div>
                         <button class="text-2xl text-gray-500 hover:text-white close-modal-btn no-print">&times;</button>
                     </div>
-                    <div id="printable-area" class="print-bg-white">
-                        <header class="flex justify-between items-start mb-8 pb-4 border-b border-gray-600">
-                             <div>
-                                <h2 contenteditable="true" class="text-2xl sm:text-3xl font-display print-text-black">${quoteTitle}</h2>
-                                <p contenteditable="true" class="text-secondary print-text-black">Per: ${clientName}</p>
-                             </div>
-                             <div class="text-right">
-                                <p contenteditable="true" class="font-bold print-text-black">${CONFIG.photographerName}</p>
-                                <p contenteditable="true" class="text-sm text-secondary print-text-black">${CONFIG.homeAddress}</p>
-                             </div>
-                        </header>
-                        <div class="space-y-6">
+                    
+                    <div id="printable-area">
+                        <!-- Header -->
+                        <header class="flex justify-between items-center mb-12 border-b-2 print-border-accent pb-4">
                             <div>
-                                <h3 contenteditable="true" class="font-display text-xl text-accent mb-2 print-text-black">Dettaglio Servizi</h3>
-                                <div class="flex justify-between print-text-black">
-                                    <span contenteditable="true">Pacchetto ${pkg.name}</span>
-                                    <span>€ <span contenteditable="true" data-price-type="base">${state.currentQuote.basePrice.toFixed(2)}</span></span>
-                                </div>
-                                <ul class="text-sm text-secondary mt-2 list-disc list-inside print-text-black">${includedItems.map((i) => `<li contenteditable="true">${i.name}</li>`).join('')}</ul>
-                                ${extraItems.length > 0 ? `<div class="mt-4">${extraItems.map((i) => `<div class="flex justify-between print-text-black"><span contenteditable="true">${i.name}</span><span>€ <span contenteditable="true" data-price-type="extra">${i.price.toFixed(2)}</span></span></div>`).join('')}</div>` : ''}
-                                <div class="flex justify-between font-bold print-text-black mt-2 pt-2 border-t border-gray-700"><span>Subtotale Servizi</span><span id="quote-service-subtotal">€ ${serviceTotal.toFixed(2)}</span></div>
+                                <h1 class="text-4xl font-display text-accent print-text-black" contenteditable="true">${CONFIG.photographerName}</h1>
+                                <p class="text-secondary print-text-black" contenteditable="true">Fotografo Professionista</p>
                             </div>
-                            ${state.currentQuote.costs.total > 0 ? `<div><h3 class="font-display text-xl text-accent mb-2 print-text-black">Costi Vivi</h3>${state.currentQuote.costs.travel > 0 ? `<div class="flex justify-between print-text-black"><span>Trasferta</span><span>€ <span contenteditable="true" data-price-type="cost-travel">${state.currentQuote.costs.travel.toFixed(2)}</span></span></div>` : ''}${state.currentQuote.costs.rental > 0 ? `<div class="flex justify-between print-text-black"><span>Noleggio</span><span>€ <span contenteditable="true" data-price-type="cost-rental">${state.currentQuote.costs.rental.toFixed(2)}</span></span></div>` : ''}${state.currentQuote.costs.other > 0 ? `<div class="flex justify-between print-text-black"><span>Altri Costi</span><span>€ <span contenteditable="true" data-price-type="cost-other">${state.currentQuote.costs.other.toFixed(2)}</span></span></div>` : ''}<div class="flex justify-between font-bold print-text-black mt-2 pt-2 border-t border-gray-700"><span>Subtotale Costi</span><span id="quote-costs-subtotal">€ ${state.currentQuote.costs.total.toFixed(2)}</span></div></div>` : ''}
-                             <div class="mt-4"><h3 contenteditable="true" class="font-display text-xl text-accent mb-2 print-text-black">Note</h3><p contenteditable="true" class="text-secondary print-text-black text-sm">I prezzi indicati sono da considerarsi IVA esclusa. Validità del preventivo: 30 giorni.</p></div>
-                            <div class="border-t-2 border-gray-600 my-4 pt-4">
-                                <div class="flex justify-between items-center text-3xl font-display print-text-black"><span>Totale Finale</span><span class="text-accent" id="quote-final-total">€ ${state.currentQuote.total.toFixed(2)}</span></div>
+                            <div class="text-right text-sm">
+                                <div class="flex items-center justify-end gap-2"><p contenteditable="true">${CONFIG.homeAddress}</p><i class="fas fa-map-marker-alt text-accent"></i></div>
+                                <div class="flex items-center justify-end gap-2 mt-1"><p contenteditable="true">${CONFIG.phoneNumber}</p><i class="fas fa-phone-alt text-accent"></i></div>
+                                <div class="flex items-center justify-end gap-2 mt-1"><p contenteditable="true">${CONFIG.instagramHandle}</p><i class="fab fa-instagram text-accent"></i></div>
+                            </div>
+                        </header>
+
+                        <!-- Client Info & Title -->
+                        <div class="flex justify-between mb-8">
+                            <div>
+                                <h3 class="text-secondary print-text-black">PREVENTIVO PER</h3>
+                                <p class="text-xl font-bold" contenteditable="true">${clientName}</p>
+                            </div>
+                            <div class="text-right">
+                                 <h2 class="text-2xl sm:text-3xl font-display print-text-black" contenteditable="true">${quoteTitle}</h2>
+                                 <p class="text-secondary print-text-black" contenteditable="true">Data: ${new Date().toLocaleDateString('it-IT')}</p>
                             </div>
                         </div>
+
+                        <!-- Items Table -->
+                        <div class="w-full mb-8">
+                            <div class="flex font-bold print-bg-accent print-text-white rounded-t-lg p-2">
+                                <div class="w-4/6">DESCRIZIONE</div>
+                                <div class="w-2/6 text-right">PREZZO</div>
+                            </div>
+                            <div class="bg-gray-800 print-bg-gray rounded-b-lg">
+                                <!-- Base Package -->
+                                <div class="flex p-2 border-b border-gray-700">
+                                    <div class="w-4/6">
+                                        <p class="font-bold" contenteditable="true">Pacchetto: ${pkg.name}</p>
+                                        <ul class="text-xs text-secondary list-disc list-inside ml-2 print-text-black">
+                                            ${includedItems.map((i) => `<li contenteditable="true">${i.name}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div class="w-2/6 text-right" contenteditable="true" data-price-type="base">€ ${state.currentQuote.basePrice.toFixed(2)}</div>
+                                </div>
+                                <!-- Extras -->
+                                ${extraItems.map((i) => `
+                                <div class="flex p-2 border-b border-gray-700">
+                                    <div class="w-4/6" contenteditable="true">${i.name}</div>
+                                    <div class="w-2/6 text-right" contenteditable="true" data-price-type="extra">€ ${i.price.toFixed(2)}</div>
+                                </div>`).join('')}
+                                <!-- Costs -->
+                                 ${state.currentQuote.costs.travel > 0 ? `<div class="flex p-2 border-b border-gray-700"><div class="w-4/6" contenteditable="true">Trasferta</div><div class="w-2/6 text-right" contenteditable="true" data-price-type="cost-travel">€ ${state.currentQuote.costs.travel.toFixed(2)}</div></div>` : ''}
+                                 ${state.currentQuote.costs.rental > 0 ? `<div class="flex p-2 border-b border-gray-700"><div class="w-4/6" contenteditable="true">Noleggio Attrezzatura</div><div class="w-2/6 text-right" contenteditable="true" data-price-type="cost-rental">€ ${state.currentQuote.costs.rental.toFixed(2)}</div></div>` : ''}
+                                 ${state.currentQuote.costs.other > 0 ? `<div class="flex p-2 border-b border-gray-700"><div class="w-4/6" contenteditable="true">Altri Costi</div><div class="w-2/6 text-right" contenteditable="true" data-price-type="cost-other">€ ${state.currentQuote.costs.other.toFixed(2)}</div></div>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Totals -->
+                        <div class="flex justify-end mt-4">
+                            <div class="w-full sm:w-1/2">
+                                <div class="flex justify-between items-center text-3xl font-display bg-gray-800 print-bg-gray p-3 rounded-lg">
+                                    <span class="print-text-black">Totale Finale</span>
+                                    <span class="text-accent" id="quote-final-total">€ ${state.currentQuote.total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-16 pt-4 border-t border-gray-700 text-center text-xs text-secondary print-text-black">
+                            <p contenteditable="true">Grazie per la tua richiesta! Questo preventivo è valido per 30 giorni. I prezzi si intendono IVA esclusa.</p>
+                            <p contenteditable="true">${CONFIG.photographerName} | ${CONFIG.homeAddress}</p>
+                        </div>
                     </div>
+
                     <div class="flex flex-col sm:flex-row gap-4 mt-8 no-print">
                         <button onclick="window.print()" class="btn btn-secondary w-full"><i class="fas fa-print mr-2"></i>Stampa / PDF</button>
                         <button class="btn btn-primary w-full close-modal-btn">Chiudi</button>
@@ -375,6 +448,16 @@
                         <div>
                             <label for="config-address" class="block text-sm font-medium text-secondary mb-1">Indirizzo</label>
                             <input type="text" id="config-address" class="input-field w-full" value="${CONFIG.homeAddress}">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <div>
+                                <label for="config-phone" class="block text-sm font-medium text-secondary mb-1">Cellulare</label>
+                                <input type="text" id="config-phone" class="input-field w-full" value="${CONFIG.phoneNumber || ''}">
+                            </div>
+                            <div>
+                                <label for="config-instagram" class="block text-sm font-medium text-secondary mb-1">Instagram</label>
+                                <input type="text" id="config-instagram" class="input-field w-full" value="${CONFIG.instagramHandle || ''}">
+                            </div>
                         </div>
                         <div>
                             <label for="config-cost-km" class="block text-sm font-medium text-secondary mb-1">Costo al Km (€)</label>
@@ -481,26 +564,23 @@
             const recalculateQuoteFromDOM = () => {
                 const printableArea = document.getElementById('printable-area');
                 if (!printableArea) return;
-                let basePrice = 0, extraTotal = 0, costTravel = 0, costRental = 0, costOther = 0;
+                let finalTotal = 0;
                 const getPrice = (el) => parseFloat(el.innerText.replace(/[^\d.,-]/g, '').replace(',', '.')) || 0;
-                const basePriceEl = printableArea.querySelector('[data-price-type="base"]');
-                if (basePriceEl) basePrice = getPrice(basePriceEl);
-                printableArea.querySelectorAll('[data-price-type="extra"]').forEach(el => extraTotal += getPrice(el));
-                const travelEl = printableArea.querySelector('[data-price-type="cost-travel"]'); if(travelEl) costTravel = getPrice(travelEl);
-                const rentalEl = printableArea.querySelector('[data-price-type="cost-rental"]'); if(rentalEl) costRental = getPrice(rentalEl);
-                const otherEl = printableArea.querySelector('[data-price-type="cost-other"]'); if(otherEl) costOther = getPrice(otherEl);
-                const serviceSubtotal = basePrice + extraTotal;
-                const costsSubtotal = costTravel + costRental + costOther;
-                const finalTotal = serviceSubtotal + costsSubtotal;
-                const serviceSubtotalEl = document.getElementById('quote-service-subtotal'); if(serviceSubtotalEl) serviceSubtotalEl.innerText = `€ ${serviceSubtotal.toFixed(2)}`;
-                const costsSubtotalEl = document.getElementById('quote-costs-subtotal'); if(costsSubtotalEl) costsSubtotalEl.innerText = `€ ${costsSubtotal.toFixed(2)}`;
-                const finalTotalEl = document.getElementById('quote-final-total'); if(finalTotalEl) finalTotalEl.innerText = `€ ${finalTotal.toFixed(2)}`;
+                
+                printableArea.querySelectorAll('[data-price-type]').forEach(el => {
+                    finalTotal += getPrice(el);
+                });
+
+                const finalTotalEl = document.getElementById('quote-final-total');
+                if (finalTotalEl) finalTotalEl.innerText = `€ ${finalTotal.toFixed(2)}`;
             };
 
             // --- GESTIONE CONFIGURAZIONE ---
             const handleSaveConfig = () => {
                 CONFIG.photographerName = document.getElementById('config-name').value;
                 CONFIG.homeAddress = document.getElementById('config-address').value;
+                CONFIG.phoneNumber = document.getElementById('config-phone').value;
+                CONFIG.instagramHandle = document.getElementById('config-instagram').value;
                 CONFIG.costPerKm = parseFloat(document.getElementById('config-cost-km').value);
                 CONFIG.equipment = document.getElementById('config-equipment').value;
                 CONFIG.apiKey = document.getElementById('config-api-key').value;
@@ -565,4 +645,3 @@
 </body>
 
 </html>
-
