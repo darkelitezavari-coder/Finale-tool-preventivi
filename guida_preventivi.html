@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guida Preventivi V14 (Final Release)</title>
+    <title>Guida Preventivi V16 (Dati e AI Fix)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,7 @@
         .btn-secondary { background-color: transparent; border: 1px solid var(--accent); color: var(--accent); }
         .btn-secondary:hover { background-color: var(--accent); color: var(--bg-primary); }
         .modal { background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .input-field { background-color: var(--bg-secondary); border: 1px solid #374151; color: var(--text-primary); padding: 0.75rem; border-radius: 0.375rem; }
+        .input-field { background-color: #111827; border: 1px solid #374151; color: var(--text-primary); padding: 0.75rem; border-radius: 0.375rem; }
         textarea.input-field { min-height: 120px; }
         [contenteditable]:focus { outline: 2px solid var(--accent); background-color: #374151; border-radius: 4px; padding: 0 4px; }
         
@@ -36,37 +36,13 @@
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media print {
-            body { background-color: white !important; }
+            body { background-color: white !important; color: black !important; }
             #app, .no-print { display: none !important; }
-            #quote-modal { 
-                display: flex !important;
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: auto;
-                background-color: transparent !important;
-                backdrop-filter: none !important;
-                justify-content: flex-start;
-                align-items: flex-start;
-            }
+            #quote-modal { display: flex !important; position: absolute; left: 0; top: 0; width: 100%; height: auto; background-color: transparent !important; backdrop-filter: none !important; justify-content: flex-start; align-items: flex-start; }
             #quote-modal-content, #quote-modal-content * { visibility: visible; }
-            #quote-modal-content {
-                width: 100%;
-                max-width: 100%;
-                height: auto;
-                box-shadow: none;
-                border: none;
-                margin: 0;
-                padding: 0;
-                color: black !important;
-                background-color: white !important;
-            }
+            #quote-modal-content { width: 100%; max-width: 100%; height: auto; box-shadow: none; border: none; margin: 0; padding: 0; color: black !important; background-color: white !important; }
             .print-text-black { color: black !important; }
-            [contenteditable="true"] {
-                outline: none !important;
-                border: none !important;
-            }
+            [contenteditable="true"] { outline: none !important; border: none !important; }
         }
     </style>
 </head>
@@ -74,26 +50,26 @@
 
     <div id="app" class="max-w-7xl mx-auto p-4 md:p-8">
         
-        <header class="flex justify-between items-center mb-10">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
             <h1 class="text-3xl sm:text-4xl font-display text-accent"><i class="fas fa-compass-drafting mr-3"></i>Guida Strategica</h1>
             <div id="header-actions" class="no-print">
-                 <button id="config-btn" class="btn btn-secondary mr-2"><i class="fas fa-cog mr-2"></i>Configura</button>
+                 <button id="config-btn" class="btn btn-secondary"><i class="fas fa-cog mr-2"></i>Configura</button>
             </div>
         </header>
 
         <div id="stepper-container" class="w-full mb-8"></div>
 
         <div id="step-1" class="step-view active">
-            <h2 class="text-3xl font-display mb-2">Ciao <span id="user-name-display">Fabio</span>, iniziamo.</h2>
-            <p class="text-lg text-secondary mb-8">Seleziona il tipo di servizio fotografico che devi prezzare.</p>
+            <h2 class="text-2xl sm:text-3xl font-display mb-2">Ciao <span id="user-name-display"></span>, iniziamo.</h2>
+            <p class="text-base sm:text-lg text-secondary mb-8">Seleziona il tipo di servizio fotografico che devi prezzare.</p>
             <div id="service-selection-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
         <div id="step-2" class="step-view">
             <div class="flex items-center gap-4 mb-2">
                  <button class="btn btn-secondary !p-2 !px-4 back-btn"><i class="fas fa-arrow-left"></i></button>
-                 <h2 class="text-3xl font-display">A chi ti rivolgi?</h2>
+                 <h2 class="text-2xl sm:text-3xl font-display">A chi ti rivolgi?</h2>
             </div>
-            <p class="text-lg text-secondary mb-8 ml-16">Il profilo del cliente influenza il valore percepito e il prezzo finale.</p>
+            <p class="text-base sm:text-lg text-secondary mb-8 md:ml-16">Il profilo del cliente influenza il valore percepito e il prezzo finale.</p>
             <div id="client-profile-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </div>
         <div id="step-3" class="step-view">
@@ -102,12 +78,12 @@
         <div id="step-4" class="step-view">
              <div class="flex items-center gap-4 mb-8">
                  <button class="btn btn-secondary !p-2 !px-4 back-btn"><i class="fas fa-arrow-left"></i></button>
-                 <h2 class="text-3xl font-display">Rifinisci il tuo preventivo</h2>
+                 <h2 class="text-2xl sm:text-3xl font-display">Rifinisci il tuo preventivo</h2>
             </div>
              <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div id="customization-main-col" class="lg:col-span-2 space-y-6"></div>
                 <div class="lg:col-span-1 bg-secondary p-6 rounded-lg self-start sticky top-8">
-                     <h3 class="text-2xl font-display mb-6">Riepilogo Finale</h3>
+                     <h3 class="text-xl sm:text-2xl font-display mb-6">Riepilogo Finale</h3>
                      <div id="summary-container" class="space-y-4"></div>
                      <button id="generate-quote-btn" class="btn btn-primary w-full mt-8 text-lg"><i class="fas fa-file-invoice-dollar mr-2"></i>Genera Anteprima</button>
                 </div>
@@ -121,15 +97,21 @@
 
 
     <script>
-        // --- CONFIGURAZIONE PERSONALE (ORA MODIFICABILE) ---
+        // --- CONFIGURAZIONE GLOBALE ---
         let CONFIG = {
             photographerName: "Fabio Ronchi",
             homeAddress: "Via Cascinetta Interna 5, Gattico, Italia",
             costPerKm: 0.45,
-            equipment: `- Fotocamere: Canon 5D Mark IV (principale), Canon 80D (secondo corpo)\n- Lenti: Canon EF 24-70mm f/2.8L II USM, Canon EF 100-400mm f/4.5-5.6L IS II USM, Canon EF 50mm f/1.4 USM\n- Illuminazione: 2x Flash da studio Godox DP600III-V, 1x Flash a slitta Godox V1 con kit accessori AK-R1\n- Modificatori: Softbox GODOX 60x50cm, Octabox Triopo 90cm, 2x Ombrelli bianchi, 2x Ombrelli silver, 1x Ombrello gold, Snoot, Griglie a nido d'ape, Gelatine colorate e di correzione\n- Supporti: Treppiede Manfrotto 055 con testa a 3 vie, 3x Stativi, Portafondale 3m\n- Drone: DJI Mini Series\n- Altro: Esposimetro, Pannelli riflettenti 5-in-1 (medio e grande), Lightbox piccola, Samsung S25 Ultra con gimbal Aochuan Smart X Pro per video.`
+            apiKey: null, // La chiave API di Gemini verrà memorizzata qui
+            equipment: `- Fotocamere: Canon 5D Mark IV, Canon 80D
+- Lenti: Canon EF 24-70mm f/2.8L II USM, Canon EF 100-400mm f/4.5-5.6L IS II USM, Canon EF 50mm f/1.4 USM
+- Illuminazione: 2x Flash da studio Godox DP600III-V, 1x Flash a slitta Godox V1 con kit accessori AK-R1
+- Modificatori: Softbox GODOX 60x50cm, Octabox Triopo 90cm, 2x Ombrelli bianchi, 2x Ombrelli silver, 1x Ombrello gold, Snoot, Griglie a nido d'ape, Gelatine colorate e di correzione
+- Supporti: Treppiede Manfrotto 055 con testa a 3 vie, 3x Stativi, Portafondale 3m
+- Altro: Esposimetro, Pannelli riflettenti 5-in-1 (medio e grande), Lightbox piccola, Samsung S25 Ultra con gimbal Aochuan Smart X Pro.`
         };
 
-        // --- DATABASE (SENZA VADEMECUM STATICI) ---
+        // --- DATABASE ---
         const DATABASE = {
           'matrimonio': { name: 'Matrimonio', icon: 'fa-ring', description: 'Servizi completi per matrimoni.', clientMultipliers: { privato: 1.0, pmi: 1.2, corporate: 1.5 }, packages: { portfolio: { name: 'Portfolio Builder', basePrice: 450, description: 'Copertura essenziale della cerimonia e ritratti di coppia.', includedServices: ['copertura-2h', 'consegna-digitale-base'] }, essenziale: { name: 'Essenziale', basePrice: 750, description: 'La copertura indispensabile per i momenti più importanti.', includedServices: ['copertura-4h', 'consegna-digitale-base', 'post-produzione-base'] }, standard: { name: 'Standard', basePrice: 1400, description: 'Il pacchetto più scelto, un racconto completo della giornata.', includedServices: ['copertura-8h', 'consegna-digitale-completa', 'post-produzione-standard', 'stampe-ricordo'] }, premium: { name: 'Premium', basePrice: 2300, description: 'Un\'esperienza completa e senza pensieri, con servizi esclusivi.', includedServices: ['copertura-completa', 'consegna-digitale-completa', 'post-produzione-avanzata', 'album-lusso', 'secondo-fotografo'] } }, extras: { 'copertura-2h': { id: 'copertura-2h', name: 'Copertura 2 ore (Solo Cerimonia)', price: 0 },'copertura-4h': { id: 'copertura-4h', name: 'Copertura 4 ore (Cerimonia + Ritratti)', price: 0 },'copertura-8h': { id: 'copertura-8h', name: 'Copertura 8 ore (Fino al taglio torta)', price: 0 },'copertura-completa': { id: 'copertura-completa', name: 'Copertura completa (Senza limiti di orario)', price: 0 },'consegna-digitale-base': { id: 'consegna-digitale-base', name: 'Galleria online (150 foto elaborate)', price: 0 },'consegna-digitale-completa': { id: 'consegna-digitale-completa', name: 'Galleria online (min. 400 foto elaborate)', price: 0 },'post-produzione-base': { id: 'post-produzione-base', name: 'Post-produzione base', price: 0 },'post-produzione-standard': { id: 'post-produzione-standard', name: 'Post-produzione standard', price: 0 },'post-produzione-avanzata': { id: 'post-produzione-avanzata', name: 'Post-produzione avanzata con ritocco', price: 0 },'stampe-ricordo': { id: 'stampe-ricordo', name: 'Box con 20 stampe fine-art', price: 150, description: 'Un primo assaggio tangibile dei vostri ricordi.' },'album-lusso': { id: 'album-lusso', name: 'Album fotografico 30x20cm', price: 450, description: 'Un album professionale per custodire i vostri ricordi.' },'secondo-fotografo': { id: 'secondo-fotografo', name: 'Secondo fotografo (6 ore)', price: 400, description: 'Per una copertura da più punti di vista e maggiore sicurezza.' },'servizio-prematrimoniale': { id: 'servizio-prematrimoniale', name: 'Servizio prematrimoniale', price: 300, description: 'Per rompere il ghiaccio e avere foto più rilassate.' },'drone': { id: 'drone', name: 'Riprese con drone', price: 350, description: 'Panorami mozzafiato e prospettive uniche.' },'video-reel': { id: 'video-reel', name: 'Video Reel della giornata (1 min)', price: 350, description: 'Un montaggio emozionale dei momenti più belli, perfetto per i social.' } } },
           'ritratto': { name: 'Ritratto', icon: 'fa-portrait', description: 'Sessioni fotografiche per privati e professionisti.', clientMultipliers: { privato: 1.0, pmi: 1.5, corporate: 2.0 }, packages: { portfolio: { name: 'Solo Scatti', basePrice: 80, description: '30 minuti di sessione, consegna di 3 scatti. Ottimo per iniziare.', includedServices: ['sessione-30m', 'consegna-3-foto'] }, essenziale: { name: 'Mini Sessione', basePrice: 140, description: 'Ideale per un ritratto professionale o un aggiornamento social veloce.', includedServices: ['sessione-30m', 'consegna-5-foto', 'post-produzione-base'] }, standard: { name: 'Standard', basePrice: 280, description: 'Una sessione completa con più cambi d\'abito e più scatti.', includedServices: ['sessione-1h', 'consegna-15-foto', 'post-produzione-standard'] }, premium: { name: 'Personal Branding', basePrice: 450, description: 'Un servizio studiato per professionisti e aziende.', includedServices: ['sessione-2h', 'consegna-30-foto', 'post-produzione-avanzata', 'consulenza-stile'] } }, extras: { 'sessione-30m': { id: 'sessione-30m', name: 'Sessione da 30 minuti', price: 0 },'sessione-1h': { id: 'sessione-1h', name: 'Sessione da 1 ora, 2 cambi d\'abito', price: 0 },'sessione-2h': { id: 'sessione-2h', name: 'Sessione da 2 ore, più location/cambi', price: 0 },'consegna-3-foto': { id: 'consegna-3-foto', name: 'Consegna 3 file digitali', price: 0 },'consegna-5-foto': { id: 'consegna-5-foto', name: 'Consegna 5 file digitali post-prodotti', price: 0 },'consegna-15-foto': { id: 'consegna-15-foto', name: 'Consegna 15 file digitali post-prodotti', price: 0 },'consegna-30-foto': { id: 'consegna-30-foto', name: 'Consegna 30 file digitali post-prodotti', price: 0 },'post-produzione-base': { id: 'post-produzione-base', name: 'Post-produzione base', price: 0 },'post-produzione-standard': { id: 'post-produzione-standard', name: 'Post-produzione con ritocco base pelle', price: 0 },'post-produzione-avanzata': { id: 'post-produzione-avanzata', name: 'Post-produzione avanzata', price: 0 },'consulenza-stile': { id: 'consulenza-stile', name: 'Consulenza su stile e outfit', price: 0 },'foto-extra': { id: 'foto-extra', name: 'File extra post-prodotto', price: 20, description: 'Ogni scatto aggiuntivo oltre a quelli del pacchetto.' },'mua': { id: 'mua', name: 'Make-up Artist professionista', price: 100, description: 'Per un look impeccabile che valorizza il soggetto.' },'stampe-portfolio': { id: 'stampe-portfolio', name: 'Set 5 stampe 20x30cm', price: 80, description: 'Stampe di alta qualità perfette per un portfolio.' } } },
@@ -145,29 +127,70 @@
             let state = { currentStep: 1, selectedService: null, selectedClientProfile: null, selectedPackage: null, aiGeneratedService: null, currentVademecum: null, currentQuote: { items: [], basePrice: 0, total: 0, costs: { travel: 0, rental: 0, other: 0, total: 0 } }, customizationData: { clientName: '', quoteTitle: '' } };
             const STEPS_CONFIG = ["Servizio", "Cliente", "Pacchetto", "Personalizza"];
 
-            // --- FUNZIONI API GEMINI ---
+            // --- FUNZIONE API GEMINI ---
             const callGeminiAPI = async (prompt, expectJson = false) => {
-                // !!! MODIFICA 1: CHIAVE API INSERITA DIRETTAMENTE !!!
-                // ATTENZIONE: Questa è una pratica non sicura. La chiave è visibile a chiunque ispezioni il codice.
-                const apiKey = "gen-lang-client-0227873484"; 
+                if (!CONFIG.apiKey) {
+                    const key = prompt("Per favore, inserisci la tua chiave API di Google Gemini per continuare.\n\nPuoi salvarla nel menu 'Configura' per non doverla inserire di nuovo.");
+                    if (key) {
+                        CONFIG.apiKey = key;
+                    } else {
+                        alert("Operazione annullata. È necessaria una chiave API per usare le funzioni AI.");
+                        return expectJson ? { error: "Chiave API non fornita." } : "Errore: Chiave API non fornita.";
+                    }
+                }
 
-                // !!! MODIFICA 2: URL DELL'API CORRETTO !!!
-                // Ho aggiornato il nome del modello a "gemini-1.5-flash" che è più recente e corretto.
+                const apiKey = CONFIG.apiKey;
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-                
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                if (expectJson) { payload.generationConfig = { responseMimeType: "application/json" }; }
+                if (expectJson) {
+                    payload.generationConfig = { responseMimeType: "application/json" };
+                }
+                
+                const geminiContent = document.getElementById('gemini-content');
+                if (geminiContent) {
+                    geminiContent.innerHTML = '<div class="flex flex-col justify-center items-center h-full"><span class="loader"></span><p class="mt-4 text-secondary">L\'AI sta elaborando...</p></div>';
+                }
+
                 try {
                     const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if (!response.ok) { const errorBody = await response.text(); throw new Error(`API Error: ${response.statusText} - ${errorBody}`); }
+
+                    if (!response.ok) {
+                        if (response.status === 400) {
+                             CONFIG.apiKey = null; 
+                             const savedConfig = JSON.parse(localStorage.getItem('photographerConfig') || '{}');
+                             delete savedConfig.apiKey;
+                             localStorage.setItem('photographerConfig', JSON.stringify(savedConfig));
+                             alert("Errore: La chiave API inserita non è valida. Verrà richiesta di nuovo al prossimo utilizzo.");
+                        }
+                        const errorBody = await response.text();
+                        throw new Error(`Errore API (${response.status}): ${response.statusText}. Dettagli: ${errorBody}`);
+                    }
+
                     const data = await response.json();
+                    if (!data.candidates || !data.candidates[0].content) {
+                        throw new Error("Risposta dall'API non valida o incompleta.");
+                    }
                     const text = data.candidates[0].content.parts[0].text;
-                    return expectJson ? JSON.parse(text) : text;
+                    
+                    if (expectJson) {
+                        try {
+                            return JSON.parse(text);
+                        } catch (parseError) {
+                            console.error("Errore di parsing JSON dalla risposta AI:", text);
+                            throw new Error("L'AI ha restituito una risposta in un formato non valido (non è JSON). Riprova.");
+                        }
+                    }
+                    return text;
+
                 } catch (error) {
                     console.error("Errore chiamata Gemini API:", error);
-                    // Aggiunto un alert più specifico per aiutare a diagnosticare il problema CORS.
-                    alert("Si è verificato un errore durante la chiamata all'AI.\n\nCausa più probabile: Stai eseguendo il file come 'file://'. Per risolvere, devi avviare un server locale.\n\nControlla le istruzioni o la console del browser (F12) per i dettagli.");
-                    return expectJson ? { error: "Si è verificato un errore. Riprova." } : "Si è verificato un errore. Riprova.";
+                    const isCorsError = error.message.includes('Failed to fetch');
+                    const errorMessage = isCorsError 
+                        ? `Si è verificato un errore di rete.\n\n**Causa più probabile:** Stai eseguendo il file localmente (con un indirizzo 'file:///...'). I browser bloccano queste richieste per sicurezza (CORS policy).\n\n**Soluzione:** Apri questo file usando un semplice server web locale (es. l'estensione 'Live Server' per VS Code).`
+                        : `Si è verificato un errore durante la chiamata all'AI.\n\nDettagli tecnici: ${error.message}`;
+                    
+                    if(geminiContent) geminiContent.innerHTML = `<div class="p-4 text-red-300 whitespace-pre-wrap">${errorMessage}</div>`;
+                    return expectJson ? { error: errorMessage } : errorMessage;
                 }
             };
             
@@ -207,10 +230,10 @@
                 container.innerHTML = `
                     <div class="flex items-center gap-4 mb-2">
                          <button class="btn btn-secondary !p-2 !px-4 back-btn"><i class="fas fa-arrow-left"></i></button>
-                         <h2 class="text-3xl font-display">Scegli un punto di partenza</h2>
+                         <h2 class="text-2xl sm:text-3xl font-display">Scegli un punto di partenza</h2>
                     </div>
-                    <div class="flex flex-col md:flex-row justify-between md:items-end mb-8 gap-4 ml-16">
-                        <p class="text-lg text-secondary">${service.type === 'ai-priced' ? 'L\'AI ha generato questi pacchetti per te.' : 'Questi pacchetti sono pre-configurati.'}</p>
+                    <div class="flex flex-col md:flex-row justify-between md:items-end mb-8 gap-4 md:ml-16">
+                        <p class="text-base sm:text-lg text-secondary">${service.type === 'ai-priced' ? 'L\'AI ha generato questi pacchetti per te.' : 'Questi pacchetti sono pre-configurati.'}</p>
                         ${service.type !== 'ai-priced' ? '' : `<button id="recalculate-ai-btn" class="btn btn-secondary w-full md:w-auto mt-4 md:mt-0"><i class="fas fa-redo mr-2"></i>Affina Descrizione</button>`}
                     </div>
                     <div id="package-selection-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -222,14 +245,14 @@
 
                             return `<div class="card flex flex-col p-6 rounded-lg ${borderColor}">
                                 <div class="flex-grow flex flex-col">
-                                    <h3 class="text-2xl font-display ${key === 'portfolio' ? 'text-gray-400' : 'text-accent'}">${pkg.name}</h3>
-                                    <p class="text-5xl font-display my-4">€${finalPrice.toFixed(0)}</p>
-                                    <p class="text-secondary mb-6 flex-grow min-h-[6rem]">${pkg.description}</p>
+                                    <h3 class="text-xl sm:text-2xl font-display ${key === 'portfolio' ? 'text-gray-400' : 'text-accent'}">${pkg.name}</h3>
+                                    <p class="text-4xl sm:text-5xl font-display my-4">€${finalPrice.toFixed(0)}</p>
+                                    <p class="text-secondary mb-6 flex-grow min-h-[4rem] sm:min-h-[6rem]">${pkg.description}</p>
                                     <ul class="space-y-3 text-left">
                                         ${(pkg.includedServices || []).map(itemText => `<li><i class="fas fa-check-circle text-green-500 mr-3"></i>${itemText}</li>`).join('')}
                                     </ul>
                                 </div>
-                                <button class="btn ${key === 'portfolio' ? 'btn-secondary' : 'btn-primary'} w-full mt-8 package-select-btn" data-key="${key}">Seleziona ${pkg.name}</button>
+                                <button class="btn ${key === 'portfolio' ? 'btn-secondary' : 'btn-primary'} w-full mt-8 package-select-btn" data-key="${key}">Seleziona</button>
                             </div>`;
                         }).join('')}
                     </div>`;
@@ -238,10 +261,10 @@
                 container.innerHTML = `
                     <div class="flex items-center gap-4 mb-2">
                          <button class="btn btn-secondary !p-2 !px-4 back-btn"><i class="fas fa-arrow-left"></i></button>
-                         <h2 class="text-3xl font-display">Descrivi il Lavoro su Misura</h2>
+                         <h2 class="text-2xl sm:text-3xl font-display">Descrivi il Lavoro su Misura</h2>
                     </div>
                     <div id="ai-form-container" class="max-w-2xl mx-auto">
-                        <p class="text-lg text-secondary mb-6">Fornisci una descrizione dettagliata del lavoro. Più dettagli fornisci (soggetto, location, numero di scatti, tipo di post-produzione), più accurata sarà la stima dell'AI.</p>
+                        <p class="text-base sm:text-lg text-secondary mb-6">Fornisci una descrizione dettagliata del lavoro. Più dettagli fornisci (soggetto, location, numero di scatti, tipo di post-produzione), più accurata sarà la stima dell'AI.</p>
                         <textarea id="ai-job-description" class="input-field w-full" placeholder="Es: Fotografare 15 affreschi in una chiesa poco illuminata per un catalogo d'arte. Richiesta massima fedeltà cromatica e correzione prospettica...">${description}</textarea>
                         <button id="calculate-ai-price-btn" class="btn btn-primary w-full mt-4 text-lg"><i class="fas fa-wand-magic-sparkles mr-2"></i>Genera Pacchetti con AI</button>
                         <div id="ai-price-result" class="mt-6"></div>
@@ -264,26 +287,26 @@
                     <div class="bg-secondary p-6 rounded-lg">
                         <h3 class="text-xl font-display mb-4">✨ Assistente AI Unificato</h3>
                         <p class="text-secondary mb-4">Usa l'intelligenza artificiale per generare idee creative, testi per il cliente e un Vademecum tecnico personalizzato.</p>
-                        <button id="open-ai-assistant-btn" class="btn btn-secondary w-full"><i class="fas fa-magic-wand-sparkles mr-2"></i>Apri Assistente AI</button>
+                        <button id="open-ai-assistant-btn" class="btn btn-secondary w-full"><i class="fas fa-wand-magic-sparkles mr-2"></i>Apri Assistente AI</button>
                     </div>
                     <div class="bg-secondary p-6 rounded-lg">
                         <h4 class="text-xl font-display mb-4">Servizi Inclusi</h4>
                         <div class="space-y-2"> ${includedItems.map(item => `<div class="bg-gray-900 p-3 rounded-md"><span><i class="fas fa-check text-green-500 mr-2"></i>${item.name}</span></div>`).join('')} </div>
                         ${extraItems.length > 0 ? ` <h4 class="text-xl font-display my-4 pt-4 border-t border-gray-700">Extra Aggiunti</h4> ${extraItems.map(item => ` <div class="bg-gray-900 p-3 rounded-md flex justify-between items-center"> <span><i class="fas fa-plus text-accent mr-2"></i>${item.name}</span> <button class="text-red-500 hover:text-red-400 remove-extra-btn" data-key="${item.id}"><i class="fas fa-trash"></i></button> </div>`).join('')}` : ''}
                     </div>
-                    ${(availableExtras && availableExtras.length > 0) ? ` <div class="bg-secondary p-6 rounded-lg"> <h4 class="text-xl font-display mb-4">Aggiungi Servizi Extra</h4> <div class="space-y-2"> ${availableExtras.map(extra => ` <div class="bg-gray-900 p-3 rounded-md flex justify-between items-center"> <div><p>${extra.name}</p><p class="text-sm text-secondary">${extra.description}</p></div> <button class="btn btn-secondary text-sm !p-2 !px-3 add-extra-btn" data-key="${Object.keys(service.extras).find(k=>service.extras[k].name === extra.name)}">+ €${extra.price.toFixed(0)}</button> </div>`).join('')} </div> </div>` : ''}
+                    ${(availableExtras && availableExtras.length > 0) ? ` <div class="bg-secondary p-6 rounded-lg"> <h4 class="text-xl font-display mb-4">Aggiungi Servizi Extra</h4> <div class="space-y-2"> ${availableExtras.map(extra => ` <div class="bg-gray-900 p-3 rounded-md flex justify-between items-center"> <div><p>${extra.name}</p>${extra.description ? `<p class="text-sm text-secondary">${extra.description}</p>` : ''}</div> <button class="btn btn-secondary text-sm !p-2 !px-3 add-extra-btn" data-key="${Object.keys(service.extras).find(k=>service.extras[k].name === extra.name)}">+ €${extra.price.toFixed(0)}</button> </div>`).join('')} </div> </div>` : ''}
                     <div class="bg-secondary p-6 rounded-lg">
                         <h3 class="text-xl font-display mb-4">Calcolo Costi Vivi</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div> <label for="cost-travel-km" class="block text-sm font-medium text-secondary mb-1">Trasferta (km totali A/R)</label> <input type="number" id="cost-travel-km" placeholder="Es. 100" class="input-field w-full cost-input"> </div>
-                            <div> <label for="cost-travel-eur" class="block text-sm font-medium text-secondary mb-1">Costo Trasferta (€)</label> <input type="number" id="cost-travel-eur" class="input-field w-full" readonly> </div>
+                            <div> <label for="cost-travel-eur" class="block text-sm font-medium text-secondary mb-1">Costo Trasferta (€)</label> <input type="number" id="cost-travel-eur" class="input-field w-full bg-gray-900" readonly> </div>
                             <div> <label for="cost-rental" class="block text-sm font-medium text-secondary mb-1">Noleggio Attrezzatura (€)</label> <input type="number" id="cost-rental" placeholder="Es. 50" class="input-field w-full cost-input"> </div>
                             <div> <label for="cost-other" class="block text-sm font-medium text-secondary mb-1">Altri Costi (€)</label> <input type="number" id="cost-other" placeholder="Es. 25" class="input-field w-full cost-input"> </div>
                         </div>
                     </div>`;
                 renderSummary();
             };
-            const renderSummary = () => { const container = document.getElementById('summary-container'); const extraTotal = state.currentQuote.items.filter(item => item.type === 'extra').reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0); state.currentQuote.costs.total = (state.currentQuote.costs.travel || 0) + (state.currentQuote.costs.rental || 0) + (state.currentQuote.costs.other || 0); state.currentQuote.total = state.currentQuote.basePrice + extraTotal + state.currentQuote.costs.total; container.innerHTML = ` <div class="flex justify-between text-lg"><span class="text-secondary">Costo Servizio</span><span>€ ${(state.currentQuote.basePrice + extraTotal).toFixed(2)}</span></div> ${state.currentQuote.costs.total > 0 ? `<div class="flex justify-between text-lg"><span class="text-secondary">Costi Vivi</span><span>€ ${state.currentQuote.costs.total.toFixed(2)}</span></div>` : ''} <div class="border-t border-gray-700 my-4"></div> <div class="flex justify-between items-center text-3xl font-display"><span>Totale</span><span class="text-accent">€ ${state.currentQuote.total.toFixed(2)}</span></div>`; };
+            const renderSummary = () => { const container = document.getElementById('summary-container'); const extraTotal = state.currentQuote.items.filter(item => item.type === 'extra').reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0); state.currentQuote.costs.total = (state.currentQuote.costs.travel || 0) + (state.currentQuote.costs.rental || 0) + (state.currentQuote.costs.other || 0); state.currentQuote.total = state.currentQuote.basePrice + extraTotal + state.currentQuote.costs.total; container.innerHTML = ` <div class="flex justify-between text-lg"><span class="text-secondary">Costo Servizio</span><span>€ ${(state.currentQuote.basePrice + extraTotal).toFixed(2)}</span></div> ${state.currentQuote.costs.total > 0 ? `<div class="flex justify-between text-lg"><span class="text-secondary">Costi Vivi</span><span>€ ${state.currentQuote.costs.total.toFixed(2)}</span></div>` : ''} <div class="border-t border-gray-700 my-4"></div> <div class="flex justify-between items-center text-2xl sm:text-3xl font-display"><span>Totale</span><span class="text-accent">€ ${state.currentQuote.total.toFixed(2)}</span></div>`; };
             const renderQuoteModal = () => {
                 const container = document.getElementById('quote-modal');
                 const dataSource = state.aiGeneratedService || DATABASE[state.selectedService];
@@ -295,15 +318,22 @@
                 const serviceTotal = state.currentQuote.basePrice + extraItems.reduce((acc, item) => acc + item.price, 0);
                 
                 container.innerHTML = `
-                <div id="quote-modal-content" class="bg-secondary w-full max-w-2xl rounded-lg shadow-xl p-8">
+                <div id="quote-modal-content" class="bg-secondary w-full max-w-4xl rounded-lg shadow-xl p-6 sm:p-8">
                     <div class="flex justify-between items-start mb-6 border-b border-gray-600 pb-4 no-print">
-                        <div><h2 class="text-3xl font-display">Anteprima Preventivo</h2><p class="text-secondary">Controlla e modifica i dettagli prima di finalizzare.</p></div>
+                        <div><h2 class="text-2xl sm:text-3xl font-display">Anteprima Preventivo</h2><p class="text-secondary">Controlla e modifica i dettagli prima di finalizzare.</p></div>
                         <button class="text-2xl text-gray-500 hover:text-white close-modal-btn no-print">&times;</button>
                     </div>
                     <div id="printable-area" class="print-bg-white">
-                        <div class="flex justify-between items-start mb-6 border-b border-gray-600 pb-4">
-                            <div><h2 contenteditable="true" class="text-3xl font-display print-text-black">${quoteTitle}</h2><p contenteditable="true" class="text-secondary print-text-black">Per: ${clientName}</p></div>
-                        </div>
+                        <header class="flex justify-between items-start mb-8 pb-4 border-b border-gray-600">
+                             <div>
+                                <h2 contenteditable="true" class="text-2xl sm:text-3xl font-display print-text-black">${quoteTitle}</h2>
+                                <p contenteditable="true" class="text-secondary print-text-black">Per: ${clientName}</p>
+                             </div>
+                             <div class="text-right">
+                                <p contenteditable="true" class="font-bold print-text-black">${CONFIG.photographerName}</p>
+                                <p contenteditable="true" class="text-sm text-secondary print-text-black">${CONFIG.homeAddress}</p>
+                             </div>
+                        </header>
                         <div class="space-y-6">
                             <div>
                                 <h3 contenteditable="true" class="font-display text-xl text-accent mb-2 print-text-black">Dettaglio Servizi</h3>
@@ -316,7 +346,7 @@
                                 <div class="flex justify-between font-bold print-text-black mt-2 pt-2 border-t border-gray-700"><span>Subtotale Servizi</span><span id="quote-service-subtotal">€ ${serviceTotal.toFixed(2)}</span></div>
                             </div>
                             ${state.currentQuote.costs.total > 0 ? `<div><h3 class="font-display text-xl text-accent mb-2 print-text-black">Costi Vivi</h3>${state.currentQuote.costs.travel > 0 ? `<div class="flex justify-between print-text-black"><span>Trasferta</span><span>€ <span contenteditable="true" data-price-type="cost-travel">${state.currentQuote.costs.travel.toFixed(2)}</span></span></div>` : ''}${state.currentQuote.costs.rental > 0 ? `<div class="flex justify-between print-text-black"><span>Noleggio</span><span>€ <span contenteditable="true" data-price-type="cost-rental">${state.currentQuote.costs.rental.toFixed(2)}</span></span></div>` : ''}${state.currentQuote.costs.other > 0 ? `<div class="flex justify-between print-text-black"><span>Altri Costi</span><span>€ <span contenteditable="true" data-price-type="cost-other">${state.currentQuote.costs.other.toFixed(2)}</span></span></div>` : ''}<div class="flex justify-between font-bold print-text-black mt-2 pt-2 border-t border-gray-700"><span>Subtotale Costi</span><span id="quote-costs-subtotal">€ ${state.currentQuote.costs.total.toFixed(2)}</span></div></div>` : ''}
-                             <div class="mt-4"><h3 contenteditable="true" class="font-display text-xl text-accent mb-2 print-text-black">Note</h3><p contenteditable="true" class="text-secondary print-text-black text-sm">...</p></div>
+                             <div class="mt-4"><h3 contenteditable="true" class="font-display text-xl text-accent mb-2 print-text-black">Note</h3><p contenteditable="true" class="text-secondary print-text-black text-sm">I prezzi indicati sono da considerarsi IVA esclusa. Validità del preventivo: 30 giorni.</p></div>
                             <div class="border-t-2 border-gray-600 my-4 pt-4">
                                 <div class="flex justify-between items-center text-3xl font-display print-text-black"><span>Totale Finale</span><span class="text-accent" id="quote-final-total">€ ${state.currentQuote.total.toFixed(2)}</span></div>
                             </div>
@@ -324,54 +354,81 @@
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 mt-8 no-print">
                         <button onclick="window.print()" class="btn btn-secondary w-full"><i class="fas fa-print mr-2"></i>Stampa / PDF</button>
-                    </div>
-                     <div class="flex mt-4 no-print">
-                         <button class="btn btn-primary w-full close-modal-btn">Chiudi</button>
+                        <button class="btn btn-primary w-full close-modal-btn">Chiudi</button>
                     </div>
                 </div>`;
                 container.classList.remove('hidden');
             };
-           // --- FUNZIONI API GEMINI (VERSIONE SICURA PER HOSTING PUBBLICO) ---
-const callGeminiAPI = async (prompt, expectJson = false) => {
-    // Legge la chiave API da una variabile globale o chiede all'utente di inserirla.
-    if (!window.geminiApiKey) {
-        window.geminiApiKey = prompt("Per favore, inserisci la tua chiave API di Gemini per continuare:");
-    }
-
-    if (!window.geminiApiKey) {
-        alert("Operazione annullata. È necessaria una chiave API.");
-        return expectJson ? { error: "Chiave API non inserita." } : "Errore: Chiave API non inserita.";
-    }
-
-    const apiKey = window.geminiApiKey;
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const payload = { contents: [{ parts: [{ text: prompt }] }] };
-    if (expectJson) { payload.generationConfig = { responseMimeType: "application/json" }; }
-
-    try {
-        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-
-        if (!response.ok) {
-            // Se la chiave è errata, resetta la variabile così la chiede di nuovo la volta successiva.
-            if (response.status === 400) {
-                 window.geminiApiKey = null;
-                 alert("Errore: La chiave API inserita non è valida o è scaduta. Verrà richiesta di nuovo al prossimo utilizzo.");
-            }
-            const errorBody = await response.text();
-            throw new Error(`API Error: ${response.statusText} - ${errorBody}`);
-        }
-
-        const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text;
-        return expectJson ? JSON.parse(text) : text;
-    } catch (error) {
-        console.error("Errore chiamata Gemini API:", error);
-        return expectJson ? { error: "Si è verificato un errore. Riprova." } : "Si è verificato un errore. Riprova.";
-    }
-};
-
-Una volta sostituito il codice, scorri in fondo alla pagi
+            const renderConfigModal = () => {
+                const container = document.getElementById('config-modal');
+                container.innerHTML = `
+                <div class="bg-secondary w-full max-w-2xl rounded-lg shadow-xl p-6 sm:p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-display">Configurazione</h2>
+                        <button class="text-2xl text-gray-500 hover:text-white close-modal-btn no-print">&times;</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="config-name" class="block text-sm font-medium text-secondary mb-1">Nome Fotografo</label>
+                            <input type="text" id="config-name" class="input-field w-full" value="${CONFIG.photographerName}">
+                        </div>
+                        <div>
+                            <label for="config-address" class="block text-sm font-medium text-secondary mb-1">Indirizzo</label>
+                            <input type="text" id="config-address" class="input-field w-full" value="${CONFIG.homeAddress}">
+                        </div>
+                        <div>
+                            <label for="config-cost-km" class="block text-sm font-medium text-secondary mb-1">Costo al Km (€)</label>
+                            <input type="number" step="0.01" id="config-cost-km" class="input-field w-full" value="${CONFIG.costPerKm}">
+                        </div>
+                        <div>
+                            <label for="config-api-key" class="block text-sm font-medium text-secondary mb-1">Chiave API Gemini (Google AI)</label>
+                            <input type="password" id="config-api-key" placeholder="Incolla qui la tua chiave API" class="input-field w-full" value="${CONFIG.apiKey || ''}">
+                            <p class="text-xs text-secondary mt-1">La chiave viene salvata solo nel tuo browser. Ottienine una gratis da <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-accent hover:underline">Google AI Studio</a>.</p>
+                        </div>
+                        <div>
+                            <label for="config-equipment" class="block text-sm font-medium text-secondary mb-1">La mia Attrezzatura</label>
+                            <textarea id="config-equipment" class="input-field w-full !h-48">${CONFIG.equipment}</textarea>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-8">
+                        <button id="save-config-btn" class="btn btn-primary w-full">Salva e Chiudi</button>
+                        <button class="btn btn-secondary w-full close-modal-btn">Annulla</button>
+                    </div>
+                </div>`;
+                container.classList.remove('hidden');
+            };
+            const renderAiAssistantModal = () => {
+                const container = document.getElementById('gemini-modal');
+                container.innerHTML = `
+                <div class="bg-secondary w-full max-w-3xl rounded-lg shadow-xl p-6 sm:p-8">
+                     <div class="flex justify-between items-start mb-6">
+                        <h2 class="text-2xl sm:text-3xl font-display">✨ Assistente AI Unificato</h2>
+                        <button class="text-2xl text-gray-500 hover:text-white close-modal-btn no-print">&times;</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="font-display text-lg text-accent mb-2">Idee Creative</h3>
+                            <input type="text" id="ai-assistant-keywords" placeholder="Es: Avvocato, serio, moderno..." class="input-field w-full mb-2">
+                            <button id="ai-assistant-creative-btn" class="btn btn-secondary w-full">Genera Idee</button>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg text-accent mb-2">Messaggio per Cliente</h3>
+                             <p class="text-sm text-secondary mb-2 h-10">Genera un messaggio basato sul preventivo attuale.</p>
+                             <button id="ai-assistant-email-btn" class="btn btn-secondary w-full">Genera Messaggio</button>
+                        </div>
+                        <div class="md:col-span-2">
+                             <h3 class="font-display text-lg text-accent mb-2">Vademecum Tecnico</h3>
+                             <p class="text-sm text-secondary mb-2 h-10">Crea una guida personalizzata per questo shooting.</p>
+                             <button id="ai-assistant-vademecum-btn" class="btn btn-secondary w-full">Genera Vademecum</button>
+                        </div>
+                    </div>
+                    <div id="gemini-content-wrapper" class="mt-6">
+                        <div id="gemini-content" class="h-96 overflow-y-auto p-4 bg-gray-900 rounded-md">Seleziona un'opzione per iniziare.</div>
+                        <button id="copy-gemini-content-btn" class="btn btn-primary mt-4 w-full no-print hidden"><i class="fas fa-copy mr-2"></i>Copia Testo</button>
+                    </div>
+                </div>`;
+                container.classList.remove('hidden');
+            };
             
             // --- FUNZIONI HANDLER ---
             const handleServiceSelect = (key) => { state.selectedService = key; goToStep(2); renderClientProfiles(); };
@@ -382,7 +439,7 @@ Una volta sostituito il codice, scorri in fondo alla pagi
                 const pkg = service.packages[key]; 
                 const multiplier = service.clientMultipliers ? service.clientMultipliers[state.selectedClientProfile] : 1.0; 
                 state.currentQuote.basePrice = pkg.basePrice * multiplier; 
-                if(state.selectedService === 'su-misura' || state.aiGeneratedService){
+                if(state.selectedService === 'su-misura' && state.aiGeneratedService){
                      state.currentQuote.items = pkg.includedServices.map(serviceName => ({ id: serviceName.toLowerCase().replace(/\s/g, '-'), name: serviceName, price: 0, type: 'included' }));
                 } else {
                      state.currentQuote.items = pkg.includedServices.map(id => ({ ...service.extras[id], quantity: 1, type: 'included' }));
@@ -401,49 +458,16 @@ Una volta sostituito il codice, scorri in fondo alla pagi
             };
             const handleRemoveExtra = (key) => { state.currentQuote.items = state.currentQuote.items.filter(item => item.id !== key); saveCustomizationData(); renderQuoteCustomization(); };
             const handleCostUpdate = () => { const km = parseFloat(document.getElementById('cost-travel-km').value) || 0; const costPerKm = CONFIG.costPerKm; state.currentQuote.costs.travel = km * costPerKm; document.getElementById('cost-travel-eur').value = state.currentQuote.costs.travel.toFixed(2); state.currentQuote.costs.rental = parseFloat(document.getElementById('cost-rental').value) || 0; state.currentQuote.costs.other = parseFloat(document.getElementById('cost-other').value) || 0; renderSummary(); };
-            const handleGenerateEmail = async () => { renderGeminiModal('✨ Assistente Email AI', '<div class="flex justify-center items-center h-full"><span class="loader"></span></div>', true); const clientName = state.customizationData.clientName || 'Cliente'; const quoteTitle = state.customizationData.quoteTitle; const total = state.currentQuote.total.toFixed(2); const prompt = `Sei un fotografo professionista italiano, amichevole e chiaro. Il tuo nome è ${CONFIG.photographerName}. Scrivi un breve messaggio (per email o WhatsApp) da inviare a ${clientName}. Il messaggio deve presentare il preventivo per il servizio di "${quoteTitle}", per un totale di ${total}€. Invita il cliente a farti sapere se ha domande o se desidera personalizzare la proposta. Concludi in modo professionale ma cordiale. Formatta il testo in paragrafi per una facile lettura. Non includere un oggetto.`; const result = await callGeminiAPI(prompt); document.getElementById('gemini-content').innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`; };
-            const handleGenerateCreativeBrief = async (containerId) => {
-                 const container = document.getElementById(containerId);
-                 container.innerHTML = '<div class="flex justify-center items-center h-full"><span class="loader"></span></div>';
-                 const keywords = document.getElementById('ai-assistant-keywords').value; 
-                 const serviceName = DATABASE[state.selectedService].name; 
-                 const extraItems = state.currentQuote.items.filter(i => i.type === 'extra').map(i => i.name).join(', ') || 'Nessuno';
-                 const prompt = `Agisci come un direttore creativo e fotografo esperto. Genera un breve creative brief per un servizio di "${serviceName}". ${keywords ? `Il cliente è descritto come: "${keywords}".` : ''} I servizi extra richiesti sono: ${extraItems}. Fornisci idee concise e pratiche, tenendo conto che l'attrezzatura a disposizione è la seguente:\n${CONFIG.equipment}\n\nFornisci idee per: 1. **Mood & Stile:** 2. **Location Suggerite:** 3. **Suggerimenti di Posa/Interazione:** Usa un elenco puntato per ogni categoria.`; 
-                 const result = await callGeminiAPI(prompt); 
-                 container.innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`;
-            };
-            const handleGenerateVademecum = async (containerId) => {
-                 const container = document.getElementById(containerId);
-                 container.innerHTML = '<div class="flex justify-center items-center h-full"><span class="loader"></span></div>';
-                 const serviceName = DATABASE[state.selectedService].name;
-                 const dataSource = state.aiGeneratedService || DATABASE[state.selectedService];
-                 const pkg = dataSource.packages[state.selectedPackage];
-                 const extraItems = state.currentQuote.items.filter(i => i.type === 'extra').map(i => i.name).join(', ') || 'Nessuno';
-
-                 const prompt = `Sei un fotografo esperto e mentore. Crea un Vademecum tecnico dettagliato per un servizio fotografico.
-                 **Tua Attrezzatura:** \n${CONFIG.equipment}
-                 **Tipo di Servizio:** ${serviceName}
-                 **Pacchetto Scelto:** ${pkg.name} (${pkg.description})
-                 **Servizi Extra Aggiunti:** ${extraItems}
-                 **Profilo Cliente:** ${state.selectedClientProfile}
-                 
-                 Basandoti su questi dati, fornisci consigli specifici e pratici su:
-                 1.  **Attrezzatura Essenziale:** Dalla tua lista, quale attrezzatura è fondamentale per questo specifico lavoro?
-                 2.  **Consigli Sul Campo:** Quale approccio tecnico e relazionale deve adottare il fotografo?
-                 3.  **Workflow di Post-Produzione:** Quali sono i passaggi chiave per elaborare le immagini di questo servizio?
-                 
-                 Sii specifico e fai riferimento all'attrezzatura quando possibile. Formatta il testo con titoli in grassetto e elenchi puntati.`;
-                 const result = await callGeminiAPI(prompt); 
-                 state.currentVademecum = result;
-                 container.innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`;
-            };
+            const handleGenerateEmail = async () => { renderAiAssistantModal(); const clientName = state.customizationData.clientName || 'Cliente'; const quoteTitle = state.customizationData.quoteTitle; const total = state.currentQuote.total.toFixed(2); const prompt = `Sei un fotografo professionista italiano, amichevole e chiaro. Il tuo nome è ${CONFIG.photographerName}. Scrivi un breve messaggio (per email o WhatsApp) da inviare a ${clientName}. Il messaggio deve presentare il preventivo per il servizio di "${quoteTitle}", per un totale di ${total}€. Invita il cliente a farti sapere se ha domande o se desidera personalizzare la proposta. Concludi in modo professionale ma cordiale. Formatta il testo in paragrafi per una facile lettura. Non includere un oggetto.`; const result = await callGeminiAPI(prompt); document.getElementById('gemini-content').innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`; document.getElementById('copy-gemini-content-btn').classList.remove('hidden'); };
+            const handleGenerateCreativeBrief = async () => { renderAiAssistantModal(); const keywords = document.getElementById('ai-assistant-keywords')?.value || 'Nessuna descrizione fornita'; const serviceName = DATABASE[state.selectedService].name; const extraItems = state.currentQuote.items.filter(i => i.type === 'extra').map(i => i.name).join(', ') || 'Nessuno'; const prompt = `Agisci come un direttore creativo e fotografo esperto. Genera un breve creative brief per un servizio di "${serviceName}". Il cliente è descritto come: "${keywords}". I servizi extra richiesti sono: ${extraItems}. Fornisci idee concise e pratiche, tenendo conto che l'attrezzatura a disposizione è la seguente:\n${CONFIG.equipment}\n\nFornisci idee per: 1. **Mood & Stile:** 2. **Location Suggerite:** 3. **Suggerimenti di Posa/Interazione:** Usa un elenco puntato per ogni categoria.`; const result = await callGeminiAPI(prompt); document.getElementById('gemini-content').innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`; document.getElementById('copy-gemini-content-btn').classList.remove('hidden'); };
+            const handleGenerateVademecum = async () => { renderAiAssistantModal(); const serviceName = DATABASE[state.selectedService].name; const dataSource = state.aiGeneratedService || DATABASE[state.selectedService]; const pkg = dataSource.packages[state.selectedPackage]; const extraItems = state.currentQuote.items.filter(i => i.type === 'extra').map(i => i.name).join(', ') || 'Nessuno'; const prompt = `Sei un fotografo esperto e mentore. Crea un Vademecum tecnico dettagliato per un servizio fotografico. **Tua Attrezzatura:** \n${CONFIG.equipment} **Tipo di Servizio:** ${serviceName} **Pacchetto Scelto:** ${pkg.name} (${pkg.description}) **Servizi Extra Aggiunti:** ${extraItems} **Profilo Cliente:** ${state.selectedClientProfile} Basandoti su questi dati, fornisci consigli specifici e pratici su: 1.  **Attrezzatura Essenziale:** Dalla tua lista, quale attrezzatura è fondamentale per questo specifico lavoro? 2.  **Consigli Sul Campo:** Quale approccio tecnico e relazionale deve adottare il fotografo? 3.  **Workflow di Post-Produzione:** Quali sono i passaggi chiave per elaborare le immagini di questo servizio? Sii specifico e fai riferimento all'attrezzatura quando possibile. Formatta il testo con titoli in grassetto e elenchi puntati.`; const result = await callGeminiAPI(prompt); state.currentVademecum = result; document.getElementById('gemini-content').innerHTML = `<div class="prose prose-invert text-left whitespace-pre-wrap">${result}</div>`; document.getElementById('copy-gemini-content-btn').classList.remove('hidden');};
             const handleCalculateAiPrice = async () => {
                 const description = document.getElementById('ai-job-description').value;
                 if (!description || description.length < 20) { alert("Per favore, fornisci una descrizione più dettagliata del lavoro (almeno 20 caratteri)."); return; }
                 const resultContainer = document.getElementById('ai-form-container');
-                resultContainer.innerHTML = '<div class="flex justify-center items-center p-4 h-64"><span class="loader"></span></div>';
+                resultContainer.innerHTML = '<div class="flex flex-col justify-center items-center p-4 h-64"><span class="loader"></span><p class="mt-4 text-secondary">L\'AI sta generando i pacchetti...</p></div>';
                 const pricingContext = JSON.stringify( Object.keys(DATABASE).reduce((acc, key) => { if (key !== 'su-misura') acc[key] = { packages: DATABASE[key].packages }; return acc; }, {}) );
-                const prompt = `Sei un consulente esperto per fotografi professionisti in Italia. Il fotografo che assisti si chiama ${CONFIG.photographerName}. La sua attrezzatura è:\n${CONFIG.equipment}\nAnalizza la seguente richiesta di lavoro e, basandoti sulla struttura prezzi fornita come contesto, crea una proposta commerciale completa. **Struttura Prezzi di Riferimento (in JSON):** ${pricingContext} **Descrizione del Lavoro:** "${description}" **Output Richiesto (solo JSON):** Fornisci la tua risposta ESCLUSIVAMENTE in formato JSON con la seguente struttura: { "packages": { "portfolio": { "name": "Portfolio Builder", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] }, "essenziale": { "name": "Essenziale", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] }, "standard": { "name": "Standard", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] }, "premium": { "name": "Premium", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] } }, "extras": { "extra1": { "name": "<nome extra>", "price": <numero>, "description": "<descrizione>" }, "extra2": { ... } } }`;
+                const prompt = `Sei un consulente esperto per fotografi professionisti in Italia. Il fotografo che assisti si chiama ${CONFIG.photographerName}. La sua attrezzatura è:\n${CONFIG.equipment}\nAnalizza la seguente richiesta di lavoro e, basandoti sulla struttura prezzi fornita come contesto, crea una proposta commerciale completa. **Struttura Prezzi di Riferimento (in JSON):** ${pricingContext} **Descrizione del Lavoro:** "${description}" **Output Richiesto (solo JSON):** Fornisci la tua risposta ESCLUSIVAMENTE in formato JSON. ATTENZIONE: La tua risposta deve iniziare con '{' e finire con '}'. Non includere \`\`\`json, commenti o qualsiasi altro testo al di fuori dell'oggetto JSON. La struttura deve essere: { "packages": { "portfolio": { "name": "Portfolio Builder", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] }, "essenziale": { "name": "Essenziale", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] }, "standard": { "name": "Standard", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] }, "premium": { "name": "Premium", "basePrice": <numero>, "description": "<testo>", "includedServices": ["<servizio 1>", "..."] } }, "extras": { "extra1": { "name": "<nome extra>", "price": <numero>, "description": "<descrizione>" }, "extra2": { ... } } }`;
                 const result = await callGeminiAPI(prompt, true);
                 if (result.error || !result.packages) {
                     renderAiPricingForm(document.getElementById('step-3'), description);
@@ -473,58 +497,25 @@ Una volta sostituito il codice, scorri in fondo alla pagi
                 const finalTotalEl = document.getElementById('quote-final-total'); if(finalTotalEl) finalTotalEl.innerText = `€ ${finalTotal.toFixed(2)}`;
             };
 
-            const renderAiAssistantModal = () => {
-                const container = document.getElementById('gemini-modal');
-                container.innerHTML = `
-                <div class="bg-secondary w-full max-w-3xl rounded-lg shadow-xl p-8">
-                     <div class="flex justify-between items-start mb-6">
-                        <h2 class="text-3xl font-display">✨ Assistente AI Unificato</h2>
-                        <button class="text-2xl text-gray-500 hover:text-white close-modal-btn no-print">&times;</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-display text-lg text-accent mb-2">Idee Creative</h3>
-                            <input type="text" id="ai-assistant-keywords" placeholder="Es: Avvocato, serio, moderno..." class="input-field w-full mb-2">
-                            <button id="ai-assistant-creative-btn" class="btn btn-secondary w-full">Genera Idee</button>
-                        </div>
-                        <div>
-                            <h3 class="font-display text-lg text-accent mb-2">Messaggio per Cliente</h3>
-                             <p class="text-sm text-secondary mb-2 h-10">Genera un messaggio basato sul preventivo attuale.</p>
-                             <button id="ai-assistant-email-btn" class="btn btn-secondary w-full">Genera Messaggio</button>
-                        </div>
-                        <div class="md:col-span-2">
-                             <h3 class="font-display text-lg text-accent mb-2">Vademecum Tecnico</h3>
-                             <p class="text-sm text-secondary mb-2 h-10">Crea una guida personalizzata per questo shooting.</p>
-                             <button id="ai-assistant-vademecum-btn" class="btn btn-secondary w-full">Genera Vademecum</button>
-                        </div>
-                    </div>
-                    <div id="gemini-content-wrapper" class="mt-6">
-                        <div id="gemini-content" class="h-96 overflow-y-auto p-4 bg-gray-900 rounded-md">Seleziona un'opzione per iniziare.</div>
-                        <button id="copy-gemini-content-btn" class="btn btn-primary mt-4 w-full no-print hidden"><i class="fas fa-copy mr-2"></i>Copia Testo</button>
-                    </div>
-                </div>`;
-                container.classList.remove('hidden');
-            };
-
+            // --- GESTIONE CONFIGURAZIONE ---
             const handleSaveConfig = () => {
                 CONFIG.photographerName = document.getElementById('config-name').value;
                 CONFIG.homeAddress = document.getElementById('config-address').value;
                 CONFIG.costPerKm = parseFloat(document.getElementById('config-cost-km').value);
                 CONFIG.equipment = document.getElementById('config-equipment').value;
+                CONFIG.apiKey = document.getElementById('config-api-key').value;
                 localStorage.setItem('photographerConfig', JSON.stringify(CONFIG));
                 document.getElementById('config-modal').classList.add('hidden');
                 document.getElementById('user-name-display').textContent = CONFIG.photographerName.split(' ')[0];
                 alert('Configurazione salvata!');
             };
-
             const loadConfig = () => {
                 const savedConfig = localStorage.getItem('photographerConfig');
                 if (savedConfig) {
-                    CONFIG = JSON.parse(savedConfig);
+                    CONFIG = { ...CONFIG, ...JSON.parse(savedConfig) };
                 }
                  document.getElementById('user-name-display').textContent = CONFIG.photographerName.split(' ')[0];
             };
-
             const saveCustomizationData = () => {
                 const clientNameEl = document.getElementById('client-name');
                 const quoteTitleEl = document.getElementById('quote-title');
@@ -547,8 +538,8 @@ Una volta sostituito il codice, scorri in fondo alla pagi
                 if (e.target.closest('#calculate-ai-price-btn')) { handleCalculateAiPrice(); return; }
                 if (e.target.closest('#recalculate-ai-btn')) { renderAiPricingForm(document.getElementById('step-3'), document.getElementById('ai-job-description')?.value || ''); return; }
                 if (e.target.closest('#ai-assistant-email-btn')) { handleGenerateEmail(); return; }
-                if (e.target.closest('#ai-assistant-creative-btn')) { handleGenerateCreativeBrief('gemini-content'); return; }
-                if (e.target.closest('#ai-assistant-vademecum-btn')) { handleGenerateVademecum('gemini-content'); return; }
+                if (e.target.closest('#ai-assistant-creative-btn')) { handleGenerateCreativeBrief(); return; }
+                if (e.target.closest('#ai-assistant-vademecum-btn')) { handleGenerateVademecum(); return; }
                 if (e.target.closest('#config-btn')) { renderConfigModal(); return; }
                 if (e.target.closest('#save-config-btn')) { handleSaveConfig(); return; }
                 if (e.target.closest('#copy-gemini-content-btn')) { 
@@ -574,3 +565,4 @@ Una volta sostituito il codice, scorri in fondo alla pagi
 </body>
 
 </html>
+
