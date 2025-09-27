@@ -181,73 +181,46 @@
                     }
                 }
 
-                // ===================================================================
-                // =====                CODICE CORRETTO QUI                =====
-                // ===================================================================
-                // 2. Definizione dell'endpoint e del modello stabile
-                const apiKey = CONFIG.apiKey;
-                const model = 'gemini-1.5-flash'; // MODELLO STABILE (rimosso "-latest")
-                const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`; // ENDPOINT STABILE (sostituito "v1beta" con "v1")
-                // ===================================================================
+            // --- FUNZIONE API GEMINI (RICOSTRUITA E SICURA) ---
+            const callGeminiAPI = async (apiPrompt, expectJson = false) => {
+                // 1. L'URL ora punta al nostro "assistente fidato" (la funzione Netlify)
+                const apiUrl = `/.netlify/functions/call-gemini`;
                 
-                // 3. Payload della richiesta
-                const payload = { 
-                    contents: [{ parts: [{ text: apiPrompt }] }] 
-                };
-                if (expectJson) {
-                    payload.generationConfig = { responseMimeType: "application/json" };
-                }
-                
-                // 4. Feedback visivo per l'utente
+                // 2. Feedback visivo per l'utente
                 const geminiContent = document.getElementById('gemini-content');
                 if (geminiContent) {
                     geminiContent.innerHTML = '<div class="flex flex-col justify-center items-center h-full"><span class="loader"></span><p class="mt-4 text-secondary">L\'AI sta elaborando...</p></div>';
                 }
 
-                // 5. Chiamata API con gestione errori robusta
+                // 3. Chiamata API sicura con gestione errori
                 try {
                     const response = await fetch(apiUrl, { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(payload) 
+                        // Inviamo il prompt e il tipo di risposta che ci aspettiamo
+                        body: JSON.stringify({ 
+                            prompt: apiPrompt,
+                            expectJson: expectJson 
+                        }) 
                     });
 
                     if (!response.ok) {
                         const errorBody = await response.json();
-                        const errorMsg = errorBody.error?.message || JSON.stringify(errorBody);
-                        
-                        if (response.status === 400) { // Errore comune per chiave API non valida
-                             CONFIG.apiKey = null; 
-                             const savedConfig = JSON.parse(localStorage.getItem('photographerConfig') || '{}');
-                             delete savedConfig.apiKey;
-                             localStorage.setItem('photographerConfig', JSON.stringify(savedConfig));
-                             window.alert("Errore 400: La chiave API inserita non è valida o non è abilitata per questo modello. Verrà richiesta di nuovo.");
-                        }
-                        throw new Error(`Errore API (${response.status}): ${errorMsg}`);
+                        const errorMsg = errorBody.error || JSON.stringify(errorBody);
+                        throw new Error(`Errore dal server (${response.status}): ${errorMsg}`);
                     }
 
-                    const data = await response.json();
-                    if (!data.candidates || !data.candidates[0].content) {
-                        throw new Error("Risposta dall'API non valida o incompleta.");
-                    }
-                    const text = data.candidates[0].content.parts[0].text;
+                    // La nostra funzione ci ritorna direttamente il testo o il JSON
+                    const result = await response.json();
                     
                     if (expectJson) {
-                        try {
-                            return JSON.parse(text);
-                        } catch (parseError) {
-                            console.error("Errore di parsing JSON dalla risposta AI:", text);
-                            throw new Error("L'AI ha restituito una risposta in un formato non valido (non è JSON). Riprova.");
-                        }
+                        return result; // È già un oggetto JSON
                     }
-                    return text;
+                    return result.text; // È un oggetto con una proprietà "text"
 
                 } catch (error) {
-                    console.error("Errore chiamata Gemini API:", error);
-                    const isCorsError = error.message.includes('Failed to fetch');
-                    const errorMessage = isCorsError 
-                        ? `Si è verificato un errore di rete (CORS).\n\n**Soluzione:** Apri questo file usando un'estensione come 'Live Server' in VS Code.`
-                        : `Si è verificato un errore durante la chiamata all'AI.\n\nDettagli: ${error.message}`;
+                    console.error("Errore chiamata API:", error);
+                    const errorMessage = `Si è verificato un errore durante la chiamata all'AI.\n\nDettagli: ${error.message}`;
                     
                     if(geminiContent) geminiContent.innerHTML = `<div class="p-4 text-red-300 whitespace-pre-wrap">${errorMessage}</div>`;
                     return expectJson ? { error: errorMessage } : errorMessage;
@@ -708,3 +681,4 @@
 </body>
 
 </html>
+
