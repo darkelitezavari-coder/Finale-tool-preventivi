@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guida Preventivi V21 (AI Model Fix)</title>
+    <title>Guida Preventivi V23 (Stabile)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
             font-family: 'Roboto', sans-serif; 
             background-color: var(--bg-primary); 
             color: var(--text-primary);
-            font-size: 16px; /* Aumentata leggibilità base */
+            font-size: 16px;
         }
         h1, h2, h3, h4, .font-display { font-family: 'Playfair Display', serif; }
         .step-view { display: none; }
@@ -29,7 +29,7 @@
             background-color: var(--bg-secondary); 
             border: 1px solid #374151; 
             transition: all 0.3s ease; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Aggiunta ombra per profondità */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
         .card.interactive:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .btn { padding: 0.75rem 1.5rem; border-radius: 0.375rem; font-weight: 500; transition: all 0.2s; cursor: pointer; text-align: center; display: inline-flex; align-items: center; justify-content: center; }
@@ -71,7 +71,7 @@
                 box-shadow: none;
                 border: none;
                 margin: 0;
-                padding: 2.5cm 2cm; /* Margini standard A4 */
+                padding: 2.5cm 2cm;
                 color: #111827 !important;
                 background-color: white !important;
             }
@@ -168,43 +168,58 @@
             let state = { currentStep: 1, selectedService: null, selectedClientProfile: null, selectedPackage: null, aiGeneratedService: null, currentVademecum: null, currentQuote: { items: [], basePrice: 0, total: 0, costs: { travel: 0, rental: 0, other: 0, total: 0 } }, customizationData: { clientName: '', quoteTitle: '' } };
             const STEPS_CONFIG = ["Servizio", "Cliente", "Pacchetto", "Personalizza"];
 
-            // --- FUNZIONE API GEMINI ---
+            // --- FUNZIONE API GEMINI (RICOSTRUITA) ---
             const callGeminiAPI = async (apiPrompt, expectJson = false) => {
+                // 1. Controllo proattivo della chiave API
                 if (!CONFIG.apiKey) {
-                    const key = window.prompt("Per favore, inserisci la tua chiave API di Google Gemini per continuare.\n\nPuoi salvarla nel menu 'Configura' per non doverla inserire di nuovo.");
+                    const key = window.prompt("Per usare l'AI, inserisci la tua chiave API di Google Gemini.\n\nPuoi salvarla nel menu 'Configura' per non doverla inserire di nuovo.");
                     if (key) {
                         CONFIG.apiKey = key;
                     } else {
-                        window.alert("Operazione annullata. È necessaria una chiave API per usare le funzioni AI.");
+                        window.alert("Operazione annullata. È necessaria una chiave API.");
                         return expectJson ? { error: "Chiave API non fornita." } : "Errore: Chiave API non fornita.";
                     }
                 }
 
+                // 2. Definizione dell'endpoint e del modello stabile
                 const apiKey = CONFIG.apiKey;
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey}`;
-                const payload = { contents: [{ parts: [{ text: apiPrompt }] }] };
+                const model = 'gemini-1.5-flash-latest';
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                
+                // 3. Payload della richiesta
+                const payload = { 
+                    contents: [{ parts: [{ text: apiPrompt }] }] 
+                };
                 if (expectJson) {
                     payload.generationConfig = { responseMimeType: "application/json" };
                 }
                 
+                // 4. Feedback visivo per l'utente
                 const geminiContent = document.getElementById('gemini-content');
                 if (geminiContent) {
                     geminiContent.innerHTML = '<div class="flex flex-col justify-center items-center h-full"><span class="loader"></span><p class="mt-4 text-secondary">L\'AI sta elaborando...</p></div>';
                 }
 
+                // 5. Chiamata API con gestione errori robusta
                 try {
-                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const response = await fetch(apiUrl, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(payload) 
+                    });
 
                     if (!response.ok) {
-                        if (response.status === 400) {
+                        const errorBody = await response.json();
+                        const errorMsg = errorBody.error?.message || JSON.stringify(errorBody);
+                        
+                        if (response.status === 400) { // Errore comune per chiave API non valida
                              CONFIG.apiKey = null; 
                              const savedConfig = JSON.parse(localStorage.getItem('photographerConfig') || '{}');
                              delete savedConfig.apiKey;
                              localStorage.setItem('photographerConfig', JSON.stringify(savedConfig));
-                             window.alert("Errore: La chiave API inserita non è valida. Verrà richiesta di nuovo al prossimo utilizzo.");
+                             window.alert("Errore 400: La chiave API inserita non è valida o non è abilitata per questo modello. Verrà richiesta di nuovo.");
                         }
-                        const errorBody = await response.text();
-                        throw new Error(`Errore API (${response.status}): ${response.statusText}. Dettagli: ${errorBody}`);
+                        throw new Error(`Errore API (${response.status}): ${errorMsg}`);
                     }
 
                     const data = await response.json();
@@ -227,8 +242,8 @@
                     console.error("Errore chiamata Gemini API:", error);
                     const isCorsError = error.message.includes('Failed to fetch');
                     const errorMessage = isCorsError 
-                        ? `Si è verificato un errore di rete.\n\n**Causa più probabile:** Stai eseguendo il file localmente (con un indirizzo 'file:///...'). I browser bloccano queste richieste per sicurezza (CORS policy).\n\n**Soluzione:** Apri questo file usando un semplice server web locale (es. l'estensione 'Live Server' per VS Code).`
-                        : `Si è verificato un errore durante la chiamata all'AI.\n\nDettagli tecnici: ${error.message}`;
+                        ? `Si è verificato un errore di rete (CORS).\n\n**Soluzione:** Apri questo file usando un'estensione come 'Live Server' in VS Code.`
+                        : `Si è verificato un errore durante la chiamata all'AI.\n\nDettagli: ${error.message}`;
                     
                     if(geminiContent) geminiContent.innerHTML = `<div class="p-4 text-red-300 whitespace-pre-wrap">${errorMessage}</div>`;
                     return expectJson ? { error: errorMessage } : errorMessage;
@@ -366,16 +381,16 @@
                     
                     <div id="printable-area" class="p-2">
                         <!-- Header -->
-                        <header class="flex justify-between items-start mb-12 pb-4 border-b-2 border-accent print-border-accent">
+                        <header class="grid grid-cols-2 gap-4 mb-12 pb-4 border-b-2 border-accent print-border-accent">
                             <div>
                                 <h1 class="text-4xl font-display text-accent print-text-black" contenteditable="true">${CONFIG.photographerName}</h1>
                                 <p class="text-secondary print-text-black" contenteditable="true">Fotografo Professionista</p>
-                                <p class="text-sm text-secondary print-text-black" contenteditable="true">P.IVA: ${CONFIG.pIva}</p>
                             </div>
                             <div class="text-right text-sm">
-                                <div class="flex items-center justify-end gap-2"><p contenteditable="true">${CONFIG.homeAddress}</p><i class="fas fa-map-marker-alt text-accent"></i></div>
-                                <div class="flex items-center justify-end gap-2 mt-1"><p contenteditable="true">${CONFIG.phoneNumber}</p><i class="fas fa-phone-alt text-accent"></i></div>
-                                <div class="flex items-center justify-end gap-2 mt-1"><p contenteditable="true">${CONFIG.instagramHandle}</p><i class="fab fa-instagram text-accent"></i></div>
+                                <p contenteditable="true"><b>P.IVA:</b> ${CONFIG.pIva}</p>
+                                <p contenteditable="true">${CONFIG.homeAddress}</p>
+                                <p contenteditable="true">${CONFIG.phoneNumber}</p>
+                                <p contenteditable="true">${CONFIG.instagramHandle}</p>
                             </div>
                         </header>
 
@@ -387,7 +402,8 @@
                             </div>
                             <div class="text-right">
                                  <h2 class="text-2xl sm:text-3xl font-display print-text-black" contenteditable="true">${quoteTitle}</h2>
-                                 <p class="text-secondary print-text-black" contenteditable="true">Data: ${new Date().toLocaleDateString('it-IT')}</p>
+                                 <p class="text-secondary print-text-black" contenteditable="true"><b>Preventivo N:</b> 001/2025</p>
+                                 <p class="text-secondary print-text-black" contenteditable="true"><b>Data:</b> ${new Date().toLocaleDateString('it-IT')}</p>
                             </div>
                         </div>
 
@@ -395,8 +411,8 @@
                         <table class="w-full mb-8 text-left">
                             <thead>
                                 <tr class="bg-accent text-bg-primary print-bg-accent print-text-white">
-                                    <th class="p-3 rounded-tl-lg">Descrizione</th>
-                                    <th class="p-3 text-right rounded-tr-lg">Prezzo</th>
+                                    <th class="p-3 rounded-tl-lg font-normal">Descrizione</th>
+                                    <th class="p-3 text-right rounded-tr-lg font-normal">Prezzo</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-secondary print-bg-gray">
@@ -407,7 +423,7 @@
                                             ${includedItems.map((i) => `<li contenteditable="true">${i.name}</li>`).join('')}
                                         </ul>
                                     </td>
-                                    <td class="p-3 text-right" contenteditable="true" data-price-type="base">€ ${state.currentQuote.basePrice.toFixed(2)}</td>
+                                    <td class="p-3 text-right align-top" contenteditable="true" data-price-type="base">€ ${state.currentQuote.basePrice.toFixed(2)}</td>
                                 </tr>
                                 ${extraItems.map((i) => `
                                 <tr class="border-b border-gray-700">
@@ -423,7 +439,7 @@
                         <!-- Totals -->
                         <div class="flex justify-end mt-4">
                             <div class="w-full sm:w-2/5">
-                                <div class="bg-secondary print-bg-gray p-4 rounded-lg">
+                                <div class="bg-gray-900 print-bg-gray p-4 rounded-lg">
                                     <div class="flex justify-between items-center text-2xl font-display">
                                         <span class="print-text-black">Totale Finale</span>
                                         <span class="text-accent font-bold" id="quote-final-total">€ ${state.currentQuote.total.toFixed(2)}</span>
@@ -432,9 +448,25 @@
                             </div>
                         </div>
 
+                        <!-- Terms and Signature -->
+                        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                            <div>
+                                <h4 class="font-bold text-accent mb-2">Modalità di Pagamento</h4>
+                                <p class="text-secondary print-text-black" contenteditable="true">Acconto 50% alla conferma. Saldo 50% alla consegna. Bonifico Bancario su IBAN: IT00 A123 4567 8901 2345 6789 012</p>
+                                <h4 class="font-bold text-accent mt-4 mb-2">Termini e Condizioni</h4>
+                                <p class="text-secondary print-text-black text-xs" contenteditable="true">Questa offerta è valida per 30 giorni. La consegna avverrà entro 15 giorni lavorativi dal saldo. I diritti di utilizzo delle immagini sono limitati all'uso personale e social del cliente. Per usi commerciali, contattare il fotografo.</p>
+                            </div>
+                            <div class="self-end">
+                                <h4 class="font-bold text-accent mb-2">Firma per Accettazione</h4>
+                                <div class="border-t-2 border-dashed border-gray-600 pt-8 mt-4">
+                                    <p class="text-secondary print-text-black">Data e Firma</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Footer -->
                         <div class="mt-16 pt-4 border-t border-gray-700 text-center text-xs text-secondary print-text-black">
-                            <p contenteditable="true">Grazie per la tua richiesta! Questo preventivo è valido per 30 giorni. I prezzi si intendono IVA esclusa.</p>
+                            <p contenteditable="true">Grazie per aver considerato i miei servizi!</p>
                             <p contenteditable="true">${CONFIG.photographerName} | ${CONFIG.homeAddress}</p>
                         </div>
                     </div>
