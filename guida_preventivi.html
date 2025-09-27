@@ -331,33 +331,47 @@
                 </div>`;
                 container.classList.remove('hidden');
             };
-            const renderGeminiModal = (title, content, showCopyButton = false) => { 
-                const container = document.getElementById('gemini-modal');
-                const copyButtonHTML = showCopyButton ? `<button id="copy-gemini-content-btn" class="btn btn-primary mt-4 w-full no-print"><i class="fas fa-copy mr-2"></i>Copia Testo</button>` : '';
-                container.innerHTML = ` <div class="bg-secondary w-full max-w-3xl rounded-lg shadow-xl p-8"> <div class="flex justify-between items-start mb-6"> <h2 class="text-3xl font-display">${title}</h2> <button class="text-2xl text-gray-500 hover:text-white close-modal-btn no-print">&times;</button> </div> <div id="gemini-content" class="h-[60vh] overflow-y-auto p-4 bg-gray-900 rounded-md">${content}</div>${copyButtonHTML}</div>`;
-                container.classList.remove('hidden');
-            };
-            const renderConfigModal = () => {
-                const container = document.getElementById('config-modal');
-                container.innerHTML = `
-                <div class="bg-secondary w-full max-w-2xl rounded-lg shadow-xl p-8">
-                    <div class="flex justify-between items-start mb-6">
-                        <h2 class="text-3xl font-display">Configurazione</h2>
-                        <button class="text-2xl text-gray-500 hover:text-white close-modal-btn">&times;</button>
-                    </div>
-                    <div class="space-y-4">
-                        <div><label class="block mb-1 text-sm font-medium">Il tuo Nome</label><input id="config-name" type="text" class="input-field w-full" value="${CONFIG.photographerName}"></div>
-                        <div><label class="block mb-1 text-sm font-medium">Il tuo Indirizzo (per calcolo trasferte)</label><input id="config-address" type="text" class="input-field w-full" value="${CONFIG.homeAddress}"></div>
-                        <div><label class="block mb-1 text-sm font-medium">Costo per Km (€)</label><input id="config-cost-km" type="number" step="0.01" class="input-field w-full" value="${CONFIG.costPerKm}"></div>
-                        <div><label class="block mb-1 text-sm font-medium">La tua Attrezzatura (una per riga)</label><textarea id="config-equipment" class="input-field w-full h-48">${CONFIG.equipment}</textarea></div>
-                    </div>
-                    <div class="flex justify-end gap-4 mt-8">
-                        <button id="save-config-btn" class="btn btn-primary">Salva Configurazione</button>
-                    </div>
-                </div>
-                `;
-                 container.classList.remove('hidden');
-            };
+           // --- FUNZIONI API GEMINI (VERSIONE SICURA PER HOSTING PUBBLICO) ---
+const callGeminiAPI = async (prompt, expectJson = false) => {
+    // Legge la chiave API da una variabile globale o chiede all'utente di inserirla.
+    if (!window.geminiApiKey) {
+        window.geminiApiKey = prompt("Per favore, inserisci la tua chiave API di Gemini per continuare:");
+    }
+
+    if (!window.geminiApiKey) {
+        alert("Operazione annullata. È necessaria una chiave API.");
+        return expectJson ? { error: "Chiave API non inserita." } : "Errore: Chiave API non inserita.";
+    }
+
+    const apiKey = window.geminiApiKey;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const payload = { contents: [{ parts: [{ text: prompt }] }] };
+    if (expectJson) { payload.generationConfig = { responseMimeType: "application/json" }; }
+
+    try {
+        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+        if (!response.ok) {
+            // Se la chiave è errata, resetta la variabile così la chiede di nuovo la volta successiva.
+            if (response.status === 400) {
+                 window.geminiApiKey = null;
+                 alert("Errore: La chiave API inserita non è valida o è scaduta. Verrà richiesta di nuovo al prossimo utilizzo.");
+            }
+            const errorBody = await response.text();
+            throw new Error(`API Error: ${response.statusText} - ${errorBody}`);
+        }
+
+        const data = await response.json();
+        const text = data.candidates[0].content.parts[0].text;
+        return expectJson ? JSON.parse(text) : text;
+    } catch (error) {
+        console.error("Errore chiamata Gemini API:", error);
+        return expectJson ? { error: "Si è verificato un errore. Riprova." } : "Si è verificato un errore. Riprova.";
+    }
+};
+
+Una volta sostituito il codice, scorri in fondo alla pagi
             
             // --- FUNZIONI HANDLER ---
             const handleServiceSelect = (key) => { state.selectedService = key; goToStep(2); renderClientProfiles(); };
@@ -558,4 +572,5 @@
         });
     </script>
 </body>
+
 </html>
